@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Marks & Results | EduTrack{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">ACADEMIC RESULTS</p>
+    <h1>Marks & Results</h1>
+    <p>{{ student.full_name }} · {{ student.roll_number }}</p>
+  </div>
+  <a class="btn btn-outline-primary" href="{{ url_for('student.profile') if own_profile else url_for('student.view_profile', student_id=student.id) }}">Back to profile</a>
+</div>
+<div class="stat-grid">
+  <div class="stat-card"><div class="stat-icon indigo"><i class="bi-graph-up"></i></div><div><span>Average mark score</span><strong>{% if overall_mark_average is not none %}{{ overall_mark_average }}%{% else %}—{% endif %}</strong></div></div>
+  <div class="stat-card"><div class="stat-icon navy"><i class="bi-journal-check"></i></div><div><span>Assessments</span><strong>{{ marks|length }}</strong></div></div>
+</div>
+<div class="panel mb-3">
+  <div class="panel-header"><h3>Subject performance</h3></div>
+  <div class="table-responsive">
+    <table class="table modern-table">
+      <thead><tr><th>Subject</th><th>Assessments</th><th>Average score</th><th>Result</th></tr></thead>
+      <tbody>
+      {% for row in subject_mark_summary %}
+        <tr><td><strong>{{ row.subject }}</strong></td><td>{{ row.assessments }}</td><td>{{ row.average }}%</td><td><span class="badge {% if row.result == 'Fail' %}text-bg-danger{% else %}bg-success-subtle text-success{% endif %}">{{ row.result }}</span></td></tr>
+      {% else %}
+        <tr><td colspan="4" class="empty-state">No marks available</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="panel">
+  <div class="panel-header"><h3>Examination marks</h3></div>
+  <div class="table-responsive">
+    <table class="table modern-table">
+      <thead><tr><th>Subject</th><th>Examination</th><th>Marks</th><th>Grade</th><th>Result</th></tr></thead>
+      <tbody>
+      {% for mark in marks %}
+        <tr><td>{{ mark.subject.name }}</td><td>{{ mark.examination }}</td><td>{{ mark.obtained_marks }}/{{ mark.max_marks }}</td><td><span class="badge bg-primary-subtle text-primary">{{ mark.grade }}</span></td><td><span class="badge {% if mark.grade == 'F' %}text-bg-danger{% else %}bg-success-subtle text-success{% endif %}">{{ 'Fail' if mark.grade == 'F' else 'Pass' }}</span></td></tr>
+      {% else %}
+        <tr><td colspan="5" class="empty-state">No marks available</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

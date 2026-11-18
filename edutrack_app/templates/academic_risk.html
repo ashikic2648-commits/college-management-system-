@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Academic Risk | EduTrack{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">STUDENT SUPPORT</p><h1>Academic Risk</h1><p>Transparent indicators based on recorded attendance and examination marks; not predictive AI.</p></div></div>
+<div class="panel"><div class="table-responsive"><table class="table modern-table">
+  <thead><tr><th>Student</th><th>Department</th><th>Attendance</th><th>Average marks</th><th>Failed subjects</th><th>Risk</th><th>Recommended action</th></tr></thead>
+  <tbody>{% for row in rows %}
+    <tr><td><strong>{{ row.student.full_name }}</strong><small class="d-block text-muted">{{ row.student.roll_number }}</small></td>
+      <td>{{ row.student.department.name }}</td><td>{{ row.attendance ~ '%' if row.attendance is not none else '—' }}</td>
+      <td>{{ row.average_marks ~ '%' if row.average_marks is not none else '—' }}</td><td>{{ row.failed_subjects }}</td>
+      <td><span class="badge {% if row.risk == 'High Risk' %}text-bg-danger{% elif row.risk == 'Medium Risk' %}text-bg-warning{% elif row.risk == 'Low Risk' %}bg-success-subtle text-success{% else %}bg-light text-dark{% endif %}">{{ row.risk }}</span></td>
+      <td>{{ row.action }}</td></tr>
+  {% else %}<tr><td colspan="7" class="empty-state">No student records available</td></tr>{% endfor %}
+  </tbody>
+</table></div></div>
+{% endblock %}

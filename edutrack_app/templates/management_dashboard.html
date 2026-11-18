@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Management Dashboard | EduTrack{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">COLLEGE OVERVIEW</p><h1>Management Dashboard</h1><p>Read-only college-wide academic and enrollment overview.</p></div></div>
+<div class="stat-grid">
+  <div class="stat-card"><div class="stat-icon navy"><i class="bi-people"></i></div><div><span>Students</span><strong>{{ student_count }}</strong></div></div>
+  <div class="stat-card"><div class="stat-icon indigo"><i class="bi-person-workspace"></i></div><div><span>Faculty</span><strong>{{ faculty_count }}</strong></div></div>
+  <div class="stat-card"><div class="stat-icon blue"><i class="bi-mortarboard"></i></div><div><span>Average marks</span><strong>{{ average_marks }}%</strong></div></div>
+  <div class="stat-card"><div class="stat-icon cyan"><i class="bi-check-circle"></i></div><div><span>Pass percentage</span><strong>{{ pass_percentage }}%</strong></div></div>
+</div>
+<div class="panel mb-3"><div class="panel-header"><h3>Department comparison</h3><a href="{{ url_for('management.reports') }}">View reports</a></div>
+  <div class="table-responsive"><table class="table modern-table"><thead><tr><th>Department</th><th>Students</th><th>Faculty</th><th>Attendance</th></tr></thead><tbody>
+    {% for row in department_stats %}<tr><td><strong>{{ row.department.name }}</strong></td><td>{{ row.students }}</td><td>{{ row.faculty }}</td><td>{{ row.attendance }}%</td></tr>{% else %}<tr><td colspan="4" class="empty-state">No departments available</td></tr>{% endfor %}
+  </tbody></table></div>
+</div>
+<div class="panel"><div class="panel-header"><h3>Student support overview</h3><a href="{{ url_for('management.academic_risk') }}">Review academic risk</a></div>
+  <div class="risk-overview"><div class="stat-icon navy"><i class="bi-exclamation-triangle"></i></div><div><strong>{{ high_risk_count }} high-risk students</strong><p>Rule-based indicator from attendance, marks, and failed subjects.</p></div></div>
+</div>
+{% endblock %}

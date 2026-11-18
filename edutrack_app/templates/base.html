@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>{% block title %}EduTrack{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/app.css') }}" rel="stylesheet">
+  {% block head %}{% endblock %}
+</head>
+<body>
+{% if current_user.is_authenticated %}
+<aside class="sidebar" id="sidebar">
+  <div class="brand"><div class="brand-mark">E</div><span>EduTrack</span></div>
+  <nav>
+    <a href="{{ url_for('admin.dashboard') }}" target="_blank" rel="noopener" class="{% if request.endpoint == 'admin.dashboard' %}active{% endif %}"><i class="bi-grid"></i><span>Dashboard</span></a>
+    {% if current_user.role == 'student' %}
+    <a href="{{ url_for('student.profile') }}" target="_blank" rel="noopener"><i class="bi-person-circle"></i><span>My Profile</span></a>
+    <a href="{{ url_for('student.student_marks') }}" target="_blank" rel="noopener"><i class="bi-journal-check"></i><span>Marks & Results</span></a>
+    {% endif %}
+    {% if current_user.role in ['admin','faculty','management'] %}
+    <a href="{{ url_for('admin.students') }}" target="_blank" rel="noopener"><i class="bi-person-badge"></i><span>Students</span></a>
+    <a href="{{ url_for('admin.faculty') }}" target="_blank" rel="noopener"><i class="bi-person-workspace"></i><span>Faculty</span></a>
+    {% endif %}
+    {% if current_user.role in ['admin','management'] %}
+    <a href="{{ url_for('admin.departments') }}" target="_blank" rel="noopener"><i class="bi-building"></i><span>Departments</span></a>
+    <a href="{{ url_for('admin.courses') }}" target="_blank" rel="noopener"><i class="bi-book"></i><span>Courses</span></a>
+    <a href="{{ url_for('admin.subjects') }}" target="_blank" rel="noopener"><i class="bi-journal-text"></i><span>Subjects</span></a>
+    {% endif %}
+    <a href="{{ url_for('admin.timetable') }}" target="_blank" rel="noopener"><i class="bi-calendar-week"></i><span>Timetable</span></a>
+    {% if current_user.role in ['admin','faculty'] %}
+    <a href="{{ url_for('faculty.attendance') }}" target="_blank" rel="noopener"><i class="bi-check2-square"></i><span>Attendance</span></a>
+    <a href="{{ url_for('faculty.marks') }}" target="_blank" rel="noopener"><i class="bi-mortarboard"></i><span>Examinations</span></a>
+    {% endif %}
+    <a href="{{ url_for('faculty.assignments') if current_user.role == 'faculty' else url_for('admin.assignments') }}" target="_blank" rel="noopener"><i class="bi-clipboard-check"></i><span>Assignments</span></a>
+    <a href="{{ url_for('admin.announcements') }}" target="_blank" rel="noopener"><i class="bi-megaphone"></i><span>Announcements</span></a>
+    {% if current_user.role in ['admin','management'] %}
+    <a href="{{ url_for('management.reports') }}" target="_blank" rel="noopener"><i class="bi-bar-chart"></i><span>Reports</span></a>
+    {% endif %}
+    {% if current_user.role in ['admin','management','faculty'] %}
+    <a href="{{ url_for('management.academic_risk') }}" target="_blank" rel="noopener"><i class="bi-exclamation-triangle"></i><span>Academic Risk</span></a>
+    {% endif %}
+    {% if current_user.role == 'admin' %}
+    <a href="{{ url_for('admin.audit_logs') }}" target="_blank" rel="noopener"><i class="bi-clock-history"></i><span>Audit Logs</span></a>
+    <a href="{{ url_for('admin.login_count') }}" target="_blank" rel="noopener"><i class="bi-person-check"></i><span>Login Analytics</span></a>
+    {% endif %}
+  </nav>
+</aside>
+<main class="main-shell">
+  <header class="topbar">
+    <button class="icon-button" id="sidebarToggle" aria-label="Toggle sidebar"><i class="bi-list"></i></button>
+    <div class="topbar-search"><i class="bi-search"></i><input id="globalSearch" placeholder="Search EduTrack"></div>
+    <div class="topbar-actions">
+      <span class="today-date">{{ current_date }}</span>
+      <div class="dropdown">
+        <button class="icon-button position-relative" aria-label="Notifications" data-bs-toggle="dropdown"><i class="bi-bell"></i>{% if unread_notification_count %}<span class="dot"></span>{% endif %}</button>
+        <ul class="dropdown-menu dropdown-menu-end notification-menu">
+          {% for item in recent_notifications %}
+          <li><form method="post" action="{{ url_for('admin.mark_notification_read', item_id=item.id) }}"><button class="dropdown-item notification-item"><strong>{{ item.title }}</strong><small>{{ item.message }}</small></button></form></li>
+          {% else %}<li><span class="dropdown-item-text text-muted">No new notifications</span></li>{% endfor %}
+          <li><hr class="dropdown-divider"></li><li><a class="dropdown-item text-center" href="{{ url_for('admin.notifications') }}">View all notifications ({{ unread_notification_count }})</a></li>
+        </ul>
+      </div>
+      <div class="dropdown">
+        <button class="profile-button dropdown-toggle" data-bs-toggle="dropdown"><span class="avatar">{{ current_user.name[:1] }}</span><span class="profile-name">{{ current_user.name }}</span></button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="{{ url_for('admin.settings') }}"><i class="bi-gear me-2"></i>Settings</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}"><i class="bi-box-arrow-right me-2"></i>Logout</a></li>
+        </ul>
+      </div>
+    </div>
+  </header>
+  <div class="content-area">
+{% endif %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="toast-container position-fixed top-0 end-0 p-3">
+{% for category, message in messages %}
+<div class="toast show align-items-center text-bg-{{ category }} border-0 mb-2" role="alert"><div class="d-flex"><div class="toast-body">{{ message }}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>
+{% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+{% block content %}{% endblock %}
+{% if current_user.is_authenticated %}</div></main>{% endif %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

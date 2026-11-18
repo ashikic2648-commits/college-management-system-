@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Sign in | EduTrack{% endblock %}
+{% block content %}
+<div class="login-layout">
+  <div class="login-brand">
+    <div class="login-orbit orbit-one"></div><div class="login-orbit orbit-two"></div>
+    <div class="login-copy"><div class="brand-mark">E</div><h1>EduTrack</h1><p>College management, thoughtfully connected.</p></div>
+  </div>
+  <div class="login-form-wrap">
+    <form method="post" class="login-card">
+      <h2>Welcome back</h2><p class="text-muted mb-4">Sign in to your EduTrack account</p>
+      <label class="form-label">Email address</label>
+      <div class="input-icon"><i class="bi-envelope"></i><input class="form-control" type="email" name="email" placeholder="name@edutrack.com" required></div>
+      <label class="form-label mt-3">Password</label>
+      <div class="input-icon"><i class="bi-lock"></i><input class="form-control" type="password" name="password" placeholder="Enter password" required></div>
+      <button class="btn btn-primary w-100 mt-4" type="submit">Sign in <i class="bi-arrow-right ms-2"></i></button>
+      <p class="signup-link">New to EduTrack? <a href="{{ url_for('auth.signup') }}">Create an account</a></p>
+      <div class="demo-box"><strong>Demo accounts</strong><span>Admin, Faculty, Student, Management</span><code>EduTrack123!</code></div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Create account | EduTrack{% endblock %}
+{% block content %}
+<div class="login-layout">
+  <div class="login-brand">
+    <div class="login-orbit orbit-one"></div><div class="login-orbit orbit-two"></div>
+    <div class="login-copy"><div class="brand-mark">E</div><h1>EduTrack</h1><p>Start your college journey here.</p></div>
+  </div>
+  <div class="login-form-wrap">
+    <form method="post" class="login-card">
+      <h2>Create an account</h2><p class="text-muted mb-4">Use your own email address to join EduTrack</p>
+      <label class="form-label">Full name</label>
+      <div class="input-icon"><i class="bi-person"></i><input class="form-control" type="text" name="name" placeholder="Your full name" required></div>
+      <label class="form-label mt-3">Email address</label>
+      <div class="input-icon"><i class="bi-envelope"></i><input class="form-control" type="email" name="email" placeholder="you@example.com" required></div>
+      <div class="signup-select-grid mt-3" id="academicFields">
+        <div id="departmentField"><label class="form-label">Department</label><select class="form-select" name="department_id" required><option value="">Select department</option>{% for department in departments %}<option value="{{ department.id }}">{{ department.name }}</option>{% endfor %}</select></div>
+        <div id="courseField"><label class="form-label">Course</label><select class="form-select" name="course_id" required><option value="">Select course</option>{% for course in courses %}<option value="{{ course.id }}" data-department="{{ course.department_id }}">{{ course.name }}</option>{% endfor %}</select></div>
+      </div>
+      <label class="form-label mt-3">Password</label>
+      <div class="input-icon"><i class="bi-lock"></i><input class="form-control" type="password" name="password" minlength="8" placeholder="At least 8 characters" required></div>
+      <label class="form-label mt-3">Confirm password</label>
+      <div class="input-icon"><i class="bi-shield-lock"></i><input class="form-control" type="password" name="confirm_password" minlength="8" placeholder="Repeat password" required></div>
+      <button class="btn btn-primary w-100 mt-4" type="submit">Create account <i class="bi-arrow-right ms-2"></i></button>
+      <p class="signup-link">Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a></p>
+    </form>
+  </div>
+</div>
+{% endblock %}

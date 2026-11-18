@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Faculty Dashboard | EduTrack{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">FACULTY OVERVIEW</p><h1>Welcome, {{ current_user.name }}</h1><p>Your assigned classes, student performance, and upcoming coursework.</p></div></div>
+<div class="stat-grid">
+  <div class="stat-card"><div class="stat-icon indigo"><i class="bi-journal-bookmark"></i></div><div><span>Assigned subjects</span><strong>{{ subjects|length }}</strong></div></div>
+  <div class="stat-card"><div class="stat-icon navy"><i class="bi-people"></i></div><div><span>Students handled</span><strong>{{ students|length }}</strong></div></div>
+  <div class="stat-card"><div class="stat-icon blue"><i class="bi-check2-circle"></i></div><div><span>Average attendance</span><strong>{{ attendance_percentage }}%</strong></div></div>
+  <div class="stat-card"><div class="stat-icon cyan"><i class="bi-mortarboard"></i></div><div><span>Average marks</span><strong>{{ average_marks }}%</strong></div></div>
+</div>
+<div class="dashboard-bottom">
+  <div class="panel"><div class="panel-header"><h3>Assigned subjects</h3></div>
+    {% for subject in subjects %}<div class="activity-row"><div class="activity-icon"><i class="bi-book"></i></div><div><strong>{{ subject.code }} · {{ subject.name }}</strong><p>{{ subject.course.name }} · Semester {{ subject.semester }}</p></div></div>{% else %}<div class="empty-state">No subjects assigned. Contact an administrator.</div>{% endfor %}
+  </div>
+  <div class="panel"><div class="panel-header"><h3>Today's timetable</h3><span>{{ current_date }}</span></div>
+    {% for item in today_entries %}<div class="activity-row"><div class="activity-icon"><i class="bi-clock"></i></div><div><strong>{{ item.subject.name }}</strong><p>{{ item.start_time }}–{{ item.end_time }} · {{ item.room or 'Room TBD' }}</p></div></div>{% else %}<div class="empty-state">No classes scheduled for today</div>{% endfor %}
+  </div>
+</div>
+<div class="dashboard-bottom">
+  <div class="panel"><div class="panel-header"><h3>Upcoming assignments</h3><a href="{{ url_for('faculty.assignments') }}">View all</a></div>
+    {% for item in assignments %}<div class="activity-row"><div class="activity-icon"><i class="bi-clipboard-check"></i></div><div><strong>{{ item.title }}</strong><p>{{ item.subject.name }} · Due {{ item.due_date }}</p></div></div>{% else %}<div class="empty-state">No upcoming assignments</div>{% endfor %}
+  </div>
+  <div class="panel"><div class="panel-header"><h3>Recent activity</h3></div>
+    {% for item in activities %}<div class="activity-row"><div class="activity-icon"><i class="bi-clock-history"></i></div><div><strong>{{ item.action }}</strong><p>{{ item.description }} · {{ item.timestamp.strftime('%b %d, %H:%M') }}</p></div></div>{% else %}<div class="empty-state">No recent faculty activity</div>{% endfor %}
+  </div>
+</div>
+{% endblock %}

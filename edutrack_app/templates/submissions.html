@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Submissions | EduTrack{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><p class="eyebrow">COURSEWORK</p><h1>{{ assignment.title }}</h1><p>{{ assignment.subject.name }} · Due {{ assignment.due_date }}</p></div>
+  <a class="btn btn-outline-primary" href="{{ url_for('admin.assignments') }}">Back to assignments</a>
+</div>
+<div class="panel">
+  <div class="table-responsive"><table class="table modern-table">
+    <thead><tr><th>Roll number</th><th>Student</th><th>Submitted</th><th>File</th><th>Grade and feedback</th></tr></thead>
+    <tbody>{% for item in items %}
+      <tr>
+        <td>{{ item.student.roll_number }}</td>
+        <td><strong>{{ item.student.full_name }}</strong></td>
+        <td>{{ item.submitted_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td><a href="{{ url_for('admin.download_submission', item_id=item.id) }}">{{ item.file_name }}</a></td>
+        <td><form method="post" action="{{ url_for('admin.grade_submission', item_id=item.id) }}" class="grade-form">
+          <input class="form-control" type="number" min="0" max="100" step="0.01" name="grade" value="{{ item.grade if item.grade is not none else '' }}" placeholder="Grade / 100" required>
+          <input class="form-control" name="feedback" value="{{ item.feedback or '' }}" placeholder="Feedback">
+          <button class="btn btn-sm btn-primary">Save</button>
+        </form></td>
+      </tr>
+    {% else %}<tr><td colspan="5" class="empty-state">No submissions yet</td></tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+{% endblock %}

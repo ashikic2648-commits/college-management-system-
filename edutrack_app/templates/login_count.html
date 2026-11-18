@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Login Analytics | EduTrack{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">ACCOUNT ACTIVITY</p>
+    <h1>Login Analytics</h1>
+    <p>Successful and failed login activity across EduTrack.</p>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('admin.export_login_analytics') }}"><i class="bi-download me-2"></i>Export Excel</a>
+</div>
+<div class="stat-grid">
+  <div class="stat-card"><div class="stat-icon indigo"><i class="bi-people"></i></div><div><span>Unique users logged in</span><strong>{{ login_count }}</strong></div></div>
+  <div class="stat-card"><div class="stat-icon blue"><i class="bi-box-arrow-in-right"></i></div><div><span>Total attempts</span><strong>{{ total_attempts }}</strong></div></div>
+  <div class="stat-card"><div class="stat-icon cyan"><i class="bi-check-circle"></i></div><div><span>Successful</span><strong>{{ successful_count }}</strong></div></div>
+  <div class="stat-card"><div class="stat-icon navy"><i class="bi-shield-exclamation"></i></div><div><span>Failed</span><strong>{{ failed_count }}</strong></div></div>
+</div>
+<div class="login-role-grid">
+  {% for role, label in [('student','Students'),('faculty','Faculty'),('admin','Administrators'),('management','Management')] %}
+  <div class="panel"><span>{{ label }}</span><strong>{{ role_counts[role] }}</strong><small>unique users</small></div>
+  {% endfor %}
+</div>
+<div class="panel mb-3">
+  <div class="panel-header"><div><h3>Successful logins · last 14 days</h3><p>Daily successful login activity.</p></div></div>
+  <canvas id="loginChart"></canvas>
+</div>
+<div class="panel mb-3">
+  <div class="panel-header"><h3>Most active users</h3></div>
+  <div class="table-responsive"><table class="table modern-table">
+    <thead><tr><th>User</th><th>Role</th><th>Successful logins</th><th>Last login</th></tr></thead>
+    <tbody>{% for user, login_total, last_login in active_users %}
+      <tr><td><strong>{{ user.name }}</strong><small class="d-block text-muted">{{ user.email }}</small></td>
+        <td>{{ user.role|title }}</td><td>{{ login_total }}</td><td>{{ last_login.strftime('%Y-%m-%d %H:%M') if last_login else '—' }}</td></tr>
+    {% else %}<tr><td colspan="4" class="empty-state">No successful logins recorded</td></tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+<div class="panel">
+  <div class="panel-header"><h3>Recent login attempts</h3></div>
+  <div class="table-responsive"><table class="table modern-table">
+    <thead><tr><th>Time</th><th>Email</th><th>Role</th><th>Result</th></tr></thead>
+    <tbody>{% for event in history %}
+      <tr><td>{{ event.timestamp.strftime('%Y-%m-%d %H:%M') }}</td><td>{{ event.attempted_email }}</td>
+        <td>{{ event.role|title if event.role else 'Unknown' }}</td>
+        <td>{% if event.succeeded %}<span class="badge bg-success-subtle text-success">Successful</span>{% else %}<span class="badge text-bg-danger">Failed</span>{% endif %}</td></tr>
+    {% else %}<tr><td colspan="4" class="empty-state">No login attempts recorded</td></tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+new Chart(document.getElementById("loginChart"), {
+  type: "line",
+  data: {labels: {{ daily_labels|tojson }}, datasets: [{label: "Successful logins", data: {{ daily_values|tojson }}, borderColor: "#4f46e5", backgroundColor: "rgba(79,70,229,.1)", fill: true, tension: .35}]},
+  options: {responsive: true, plugins: {legend: {display: false}}, scales: {y: {beginAtZero: true, ticks: {precision: 0}}}}
+});
+</script>
+{% endblock %}

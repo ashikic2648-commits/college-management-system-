@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block title %}Audit Logs | EduTrack{% endblock %}{% block content %}
+<div class="page-heading"><div><p class="eyebrow">SECURITY</p><h1>Audit Logs</h1></div></div>
+<div class="panel"><table class="table modern-table"><thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>Description</th></tr></thead><tbody>{% for item in items %}<tr><td>{{ item.timestamp.strftime('%Y-%m-%d %H:%M') }}</td><td>{{ item.user.name if item.user else 'System' }}</td><td><span class="badge bg-light text-dark">{{ item.action }}</span></td><td>{{ item.description or '—' }}</td></tr>{% else %}<tr><td colspan="4" class="empty-state">No audit activity</td></tr>{% endfor %}</tbody></table></div>
+{% endblock %}

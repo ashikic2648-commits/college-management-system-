@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Assignments | EduTrack{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><p class="eyebrow">COURSEWORK</p><h1>Assignments</h1></div>
+  {% if current_user.role in ['admin','faculty'] %}
+  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal"><i class="bi-plus-lg me-2"></i>New assignment</button>
+  {% endif %}
+</div>
+<div class="assignment-grid">
+  {% for item in items %}
+  {% set submission = submissions_by_assignment.get(item.id) if submissions_by_assignment is defined else none %}
+  <div class="assignment-card">
+    <div class="assignment-meta"><span>{{ item.subject.name }}</span><span class="due-date"><i class="bi-calendar3 me-1"></i>{{ item.due_date }}</span></div>
+    <h3>{{ item.title }}</h3>
+    <p>{{ item.description or 'No additional description.' }}</p>
+    {% if current_user.role == 'student' %}
+      {% if submission %}
+      <div class="submission-status">
+        <span class="badge {% if submission.grade is not none %}bg-success-subtle text-success{% else %}bg-primary-subtle text-primary{% endif %}">
+          {{ 'Graded · ' ~ submission.grade ~ '/100' if submission.grade is not none else 'Submitted' }}
+        </span>
+        <a class="btn btn-sm btn-light" href="{{ url_for('admin.download_submission', item_id=submission.id) }}">Download your submission</a>
+        {% if submission.feedback %}<small class="d-block mt-2 text-muted">Feedback: {{ submission.feedback }}</small>{% endif %}
+      </div>
+      {% endif %}
+      <form method="post" enctype="multipart/form-data" action="{{ url_for('student.submit_assignment', assignment_id=item.id) }}" class="mt-3">
+        <label class="form-label">{{ 'Replace submission' if submission else 'Submit file' }}</label>
+        <input class="form-control" type="file" name="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.png,.jpg,.jpeg" required>
+        <button class="btn btn-sm btn-primary mt-2">{{ 'Resubmit' if submission else 'Submit assignment' }}</button>
+      </form>
+    {% elif current_user.role in ['admin','faculty'] %}
+      <div class="d-flex gap-2 mt-3">
+        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.assignment_submissions', item_id=item.id) }}">View submissions</a>
+        <form method="post" action="{{ url_for('admin.delete_assignment', item_id=item.id) }}" onsubmit="return confirm('Delete this assignment?')">
+          <button class="btn btn-sm btn-light text-danger"><i class="bi-trash me-1"></i>Delete</button>
+        </form>
+      </div>
+    {% endif %}
+  </div>
+  {% else %}<div class="panel empty-state">No assignments found for your classes</div>{% endfor %}
+</div>
+{% if current_user.role in ['admin','faculty'] %}
+<div class="modal fade" id="addModal"><div class="modal-dialog"><form method="post" class="modal-content">
+  <div class="modal-header"><h5>New assignment</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+  <div class="modal-body">
+    <label class="form-label">Title</label><input class="form-control" name="title" required>
+    <label class="form-label mt-3">Subject</label><select class="form-select" name="subject_id" required>{% for subject in subjects %}<option value="{{ subject.id }}">{{ subject.code }} — {{ subject.name }}</option>{% endfor %}</select>
+    <label class="form-label mt-3">Due date</label><input class="form-control" type="date" name="due_date" required>
+    <label class="form-label mt-3">Description</label><textarea class="form-control" name="description"></textarea>
+    {% if current_user.role == 'admin' and faculties is defined %}<label class="form-label mt-3">Assigned faculty</label><select class="form-select" name="faculty_id"><option value="">Subject faculty</option>{% for faculty in faculties %}<option value="{{ faculty.id }}">{{ faculty.full_name }}</option>{% endfor %}</select>{% endif %}
+  </div>
+  <div class="modal-footer"><button class="btn btn-primary">Publish assignment</button></div>
+</form></div></div>
+{% endif %}
+{% endblock %}

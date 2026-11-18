@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | EduTrack{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">OVERVIEW</p><h1>Good {{ 'morning' if current_date else 'day' }}, {{ current_user.name }}</h1><p>Here is what is happening across the college today.</p></div>
+<a href="{{ url_for('admin.announcements') }}" class="btn btn-primary"><i class="bi-plus-lg me-2"></i>New announcement</a></div>
+<div class="stat-grid">
+  <div class="stat-card"><div class="stat-icon navy"><i class="bi-person-badge"></i></div><div><span>Total Students</span><strong class="counter" data-target="{{ student_count }}">0</strong></div></div>
+  <div class="stat-card"><div class="stat-icon indigo"><i class="bi-person-workspace"></i></div><div><span>Total Faculty</span><strong class="counter" data-target="{{ faculty_count }}">0</strong></div></div>
+  <div class="stat-card"><div class="stat-icon blue"><i class="bi-building"></i></div><div><span>Departments</span><strong class="counter" data-target="{{ department_count }}">0</strong></div></div>
+  <div class="stat-card"><div class="stat-icon cyan"><i class="bi-book"></i></div><div><span>Courses</span><strong class="counter" data-target="{{ course_count }}">0</strong></div></div>
+</div>
+<div class="dashboard-grid">
+  <div class="panel"><div class="panel-header"><div><h3>Attendance Overview</h3><p>Average <strong>{{ avg_attendance }}%</strong></p></div></div><canvas id="attendanceChart"></canvas></div>
+  <div class="panel"><div class="panel-header"><div><h3>Academic Performance</h3><p>Average <strong>{{ avg_marks }}%</strong></p></div></div><canvas id="performanceChart"></canvas></div>
+</div>
+<div class="dashboard-bottom">
+  <div class="panel"><div class="panel-header"><h3>Recent Announcements</h3><a href="{{ url_for('admin.announcements') }}">View all</a></div>
+    {% for item in announcements %}<div class="activity-row"><div class="activity-icon"><i class="bi-megaphone"></i></div><div><strong>{{ item.title }}</strong><p>{{ item.category }} · {{ item.publication_date }}</p></div>{% if item.important %}<span class="badge text-bg-danger">Important</span>{% endif %}</div>{% else %}<div class="empty-state">No announcements yet</div>{% endfor %}
+  </div>
+  <div class="panel"><div class="panel-header"><h3>Upcoming Assignments</h3><a href="{{ url_for('admin.assignments') }}">View all</a></div>
+    {% for item in assignments %}<div class="activity-row"><div class="activity-icon"><i class="bi-clipboard-check"></i></div><div><strong>{{ item.title }}</strong><p>{{ item.subject.name }} · Due {{ item.due_date }}</p></div></div>{% else %}<div class="empty-state">No assignments scheduled</div>{% endfor %}
+  </div>
+</div>
+<div class="panel risk-dashboard-link"><div class="panel-header"><div><h3>Academic support</h3><p>Rule-based risk indicators from attendance, marks, and failed subjects.</p></div><a href="{{ url_for('management.academic_risk') }}">View risk analysis</a></div><strong>{{ high_risk_count }} high-risk students need review</strong></div>
+{% endblock %}
+{% block scripts %}<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>window.edutrackStats={attendance:{{ avg_attendance }},marks:{{ avg_marks }}};</script>{% endblock %}

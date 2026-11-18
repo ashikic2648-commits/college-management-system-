@@ -1,0 +1,35 @@
+{% extends "base.html" %}{% block title %}My Profile | EduTrack{% endblock %}{% block content %}
+<div class="page-heading"><div><p class="eyebrow">STUDENT PORTAL</p><h1>My Profile</h1><p>Your profile and academic information</p></div></div>
+<section class="panel mb-3" aria-labelledby="student-profile-heading">
+  <div class="row g-4 align-items-center">
+    <div class="col-md-3 text-center">
+      {% if student.photo_filename %}
+      <img src="{{ url_for('student.profile_photo', student_id=student.id) }}" alt="{{ student.full_name }} profile photo" class="rounded-circle border" width="120" height="120" style="object-fit:cover">
+      {% else %}
+      <div class="avatar xl mx-auto">{{ student.full_name[:1] }}</div>
+      {% endif %}
+      <form method="post" enctype="multipart/form-data" class="text-start mt-3">
+        <label class="form-label" for="studentPhone">Phone number</label>
+        <input class="form-control" id="studentPhone" name="phone" type="tel" maxlength="20" value="{{ student.phone or '' }}" placeholder="Add your phone number">
+        <label class="form-label mt-3" for="studentPhoto">Profile photo</label>
+        <input class="form-control" id="studentPhoto" name="photo" type="file" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp">
+        <button class="btn btn-primary w-100 mt-3" type="submit">Save profile</button>
+      </form>
+    </div>
+    <div class="col-md-9">
+      <div class="mb-3"><p class="eyebrow mb-1">STUDENT PROFILE</p><h2 id="student-profile-heading" class="h4 mb-1">{{ student.full_name }}</h2><p class="text-muted mb-0">{{ student.email }}</p></div>
+      <div class="row g-3">
+        <div class="col-sm-6"><div class="p-3 bg-light rounded-3 h-100"><small class="text-muted d-block">Roll number</small><strong>{{ student.roll_number }}</strong></div></div>
+        <div class="col-sm-6"><div class="p-3 bg-light rounded-3 h-100"><small class="text-muted d-block">Phone number</small><strong>{{ student.phone or 'Not added' }}</strong></div></div>
+        <div class="col-sm-6"><div class="p-3 bg-light rounded-3 h-100"><small class="text-muted d-block">Class</small><strong>{{ student.course.name }} · Semester {{ student.semester }}</strong></div></div>
+        <div class="col-sm-6"><div class="p-3 bg-light rounded-3 h-100"><small class="text-muted d-block">Department</small><strong>{{ student.department.name }}</strong></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="stat-grid student-stats"><div class="stat-card"><div class="stat-icon navy"><i class="bi-check2-circle"></i></div><div><span>Attendance</span><strong>{{ attendance_percentage }}%</strong></div></div><div class="stat-card"><div class="stat-icon indigo"><i class="bi-graph-up"></i></div><div><span>Average mark score</span><strong>{% if overall_mark_average is not none %}{{ overall_mark_average }}%{% else %}—{% endif %}</strong></div></div><div class="stat-card"><div class="stat-icon blue"><i class="bi-journal-check"></i></div><div><span>Marks recorded</span><strong>{{ marks|length }}</strong></div></div><div class="stat-card"><div class="stat-icon cyan"><i class="bi-clipboard-check"></i></div><div><span>Assignments</span><strong>{{ assignments|length }}</strong></div></div></div>
+<div class="panel mb-3"><div class="panel-header"><div><h3>Attendance by subject</h3><p>Your roll number: <strong>{{ student.roll_number }}</strong></p></div></div><div class="table-responsive"><table class="table modern-table"><thead><tr><th>Subject</th><th>Present</th><th>Sessions</th><th>Attendance</th><th>Status</th></tr></thead><tbody>{% for row in attendance_summary %}<tr><td><strong>{{ row.subject }}</strong></td><td>{{ row.present }}</td><td>{{ row.total }}</td><td>{{ row.percentage }}%</td><td>{% if row.percentage < 75 %}<span class="badge text-bg-danger">Below 75%</span>{% else %}<span class="badge bg-success-subtle text-success">On track</span>{% endif %}</td></tr>{% else %}<tr><td colspan="5" class="empty-state">No attendance recorded yet</td></tr>{% endfor %}</tbody></table></div></div>
+<div class="panel mb-3"><div class="panel-header"><h3>Monthly attendance</h3><form method="get" action="{{ url_for('student.profile') }}" class="d-flex gap-2"><input class="form-control" type="month" name="month" value="{{ selected_month }}" aria-label="Select attendance month"><button class="btn btn-outline-primary">View month</button></form></div><div class="table-responsive"><table class="table modern-table"><thead><tr><th>Subject</th><th>Present</th><th>Sessions</th><th>Monthly attendance</th></tr></thead><tbody>{% for row in monthly_attendance_summary %}<tr><td><strong>{{ row.subject }}</strong></td><td>{{ row.present }}</td><td>{{ row.total }}</td><td>{{ row.percentage }}%</td></tr>{% else %}<tr><td colspan="4" class="empty-state">No attendance recorded for this month</td></tr>{% endfor %}</tbody></table></div><h4 class="h6 mt-3">Attendance records</h4><div class="table-responsive"><table class="table modern-table"><thead><tr><th>Date</th><th>Subject</th><th>Status</th></tr></thead><tbody>{% for record in monthly_records %}<tr><td>{{ record.date.strftime('%d %b %Y') }}</td><td>{{ record.subject.name }}</td><td><span class="badge {% if record.status == 'Present' %}bg-success-subtle text-success{% elif record.status == 'Absent' %}text-bg-danger{% else %}bg-warning-subtle text-warning-emphasis{% endif %}">{{ record.status }}</span></td></tr>{% else %}<tr><td colspan="3" class="empty-state">No records to display</td></tr>{% endfor %}</tbody></table></div></div>
+<div class="dashboard-bottom"><div class="panel"><div class="panel-header"><h3>Marks & Results</h3><a href="{{ url_for('student.student_marks') }}">Open results</a></div><p class="text-muted">See your subject-wise performance, grades, and pass/fail status in a separate marks section.</p></div><div class="panel"><div class="panel-header"><h3>Upcoming Assignments</h3></div>{% for item in assignments %}<div class="activity-row"><div class="activity-icon"><i class="bi-clipboard"></i></div><div><strong>{{ item.title }}</strong><p>{{ item.subject.name }} · Due {{ item.due_date }}</p></div></div>{% else %}<div class="empty-state">No upcoming assignments</div>{% endfor %}</div></div>
+<div class="dashboard-bottom"><div class="panel"><div class="panel-header"><h3>Announcements</h3></div>{% for item in announcements %}<div class="activity-row"><div class="activity-icon"><i class="bi-megaphone"></i></div><div><strong>{{ item.title }}</strong><p>{{ item.category }} · {{ item.publication_date }}</p></div></div>{% else %}<div class="empty-state">No announcements</div>{% endfor %}</div></div>
+{% endblock %}

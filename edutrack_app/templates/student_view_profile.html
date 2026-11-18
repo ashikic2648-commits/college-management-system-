@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ student.full_name }} | Student Profile{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">STUDENT PROFILE</p>
+    <h1>{{ student.full_name }}</h1>
+    <p>{{ student.roll_number }} · {{ student.course.name }} · Semester {{ student.semester }}</p>
+  </div>
+  <a class="btn btn-outline-primary" href="{{ url_for('student.student_marks', student_id=student.id) }}">View marks</a>
+</div>
+<section class="panel">
+  <div class="row g-4 align-items-center">
+    <div class="col-md-3 text-center">
+      {% if student.photo_filename %}
+      <img src="{{ url_for('student.profile_photo', student_id=student.id) }}" alt="{{ student.full_name }} profile photo" class="rounded-circle border" width="120" height="120" style="object-fit:cover">
+      {% else %}
+      <div class="avatar xl mx-auto">{{ student.full_name[:1] }}</div>
+      {% endif %}
+    </div>
+    <div class="col-md-9">
+      <div class="row g-3">
+        <div class="col-sm-6"><div class="p-3 bg-light rounded-3 h-100"><small class="text-muted d-block">Roll number</small><strong>{{ student.roll_number }}</strong></div></div>
+        <div class="col-sm-6"><div class="p-3 bg-light rounded-3 h-100"><small class="text-muted d-block">Phone</small><strong>{{ student.phone or 'Not provided' }}</strong></div></div>
+        <div class="col-sm-6"><div class="p-3 bg-light rounded-3 h-100"><small class="text-muted d-block">Email</small><strong>{{ student.email }}</strong></div></div>
+        <div class="col-sm-6"><div class="p-3 bg-light rounded-3 h-100"><small class="text-muted d-block">Department</small><strong>{{ student.department.name }}</strong></div></div>
+        <div class="col-sm-6"><div class="p-3 bg-light rounded-3 h-100"><small class="text-muted d-block">Class</small><strong>{{ student.course.name }} · Semester {{ student.semester }}</strong></div></div>
+        <div class="col-sm-6"><div class="p-3 bg-light rounded-3 h-100"><small class="text-muted d-block">Overall attendance</small><strong>{{ attendance_percentage }}%</strong></div></div>
+        <div class="col-sm-6"><div class="p-3 bg-light rounded-3 h-100"><small class="text-muted d-block">Marks recorded</small><strong>{{ marks_count }}</strong></div></div>
+        <div class="col-sm-6"><div class="p-3 bg-light rounded-3 h-100"><small class="text-muted d-block">Average mark score</small><strong>{% if overall_mark_average is not none %}{{ overall_mark_average }}%{% else %}Not available{% endif %}</strong></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
